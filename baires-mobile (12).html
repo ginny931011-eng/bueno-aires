@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BA Trip</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink:    #EDCCCC;
+  --cream:   #FCFCDC;
+  --red:     #A10808;
+  --ice:     #B1CCC8;
+  --black:   #111111;
+  --gray:    #888888;
+  --lightgray: #E8E8E8;
+  --white:   #FFFFFF;
+  --bg:      #FFFFFF;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: var(--black);
+  min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--pink);
+  padding: 52px 20px 0px;
+  border-bottom: 1.5px solid var(--black);
+}
+
+.app-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.app-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.app-title span {
+  display: block;
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--red);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.days-left-pill {
+  background: var(--red);
+  color: var(--cream);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* FLIGHT CARD */
+.flight-card {
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.flight-port { text-align: center; }
+.flight-code {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+.flight-city {
+  font-size: 10px;
+  color: var(--gray);
+  margin-top: 2px;
+  font-family: 'DM Mono', monospace;
+}
+.flight-time {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+  color: var(--red);
+}
+
+.flight-mid {
+  text-align: center;
+}
+.flight-arrow {
+  font-size: 18px;
+  color: var(--gray);
+}
+.flight-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+  margin-top: 4px;
+}
+.flight-seat {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--ice);
+  background: var(--black);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 3px;
+  display: inline-block;
+}
+
+.flight-toggle {
+  background: none;
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--red);
+  cursor: pointer;
+  padding: 8px 0 0;
+  display: block;
+  width: 100%;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.flight-return {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--lightgray);
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+}
+.flight-return.open { display: grid; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: var(--white);
+  border-top: 1.5px solid var(--black);
+  display: flex;
+  z-index: 200;
+}
+
+.nav-item {
+  flex: 1;
+  background: none;
+  border: none;
+  border-right: 1px solid var(--black);
+  padding: 14px 0 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.nav-item:last-child { border-right: none; }
+.nav-item:active { background: var(--lightgray); }
+.nav-item.active { background: var(--pink); }
+
+.nav-icon { font-size: 22px; line-height: 1; }
+.nav-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--gray);
+  text-transform: uppercase;
+}
+.nav-item.active .nav-label { color: var(--black); font-weight: 500; }
+
+/* ── PAGES ── */
+.page { display: none; padding: 20px 20px 100px; }
+.page.active { display: block; }
+
+#page-itinerary {
+  padding-top: 20px;
+}
+
+#flightInfo {
+  background: var(--pink);
+  padding: 0 20px 16px;
+  border-bottom: 1.5px solid var(--black);
+}
+
+.section-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 16px;
+}
+
+/* ── ITINERARY ── */
+.day-scroller {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 20px;
+  scrollbar-width: none;
+}
+.day-scroller::-webkit-scrollbar { display: none; }
+
+.day-chip {
+  flex-shrink: 0;
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 20px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.1s;
+  text-align: center;
+}
+.day-chip.active {
+  background: var(--black);
+  color: var(--cream);
+}
+.day-chip .dc-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+}
+.day-chip .dc-label {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-top: 1px;
+}
+
+.day-panel { display: none; }
+.day-panel.active { display: block; }
+
+.day-barrio {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+/* ── EVENT EDIT ── */
+.event-card {
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.event-card:active { background: var(--pink); }
+
+.event-card.editing {
+  background: var(--cream);
+  border-color: var(--red);
+  cursor: default;
+}
+
+.event-edit-fields { display: none; flex-direction: column; gap: 8px; margin-top: 8px; }
+.event-card.editing .event-edit-fields { display: flex; }
+.event-card.editing .event-display { display: none; }
+
+.event-edit-input {
+  border: 1.5px solid var(--black);
+  border-radius: 8px;
+  background: var(--white);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  width: 100%;
+}
+
+.event-edit-actions { display: flex; gap: 8px; }
+
+.event-save-btn {
+  flex: 1;
+  background: var(--black);
+  color: var(--cream);
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.event-cancel-btn {
+  background: none;
+  border: 1.5px solid var(--black);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+
+.event-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--gray);
+  min-width: 42px;
+  padding-top: 2px;
+}
+
+.event-body { flex: 1; }
+
+.event-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.event-desc {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.event-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+
+.etag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--black);
+}
+.etag-food    { background: #FFE8B0; }
+.etag-culture { background: var(--ice); }
+.etag-transit { background: #E0D4FF; }
+.etag-leisure { background: var(--cream); }
+
+.add-event-btn {
+  width: 100%;
+  background: none;
+  border: 1.5px dashed var(--black);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--gray);
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.add-event-form {
+  display: none;
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
+  gap: 10px;
+  flex-direction: column;
+}
+.add-event-form.open { display: flex; }
+
+.fi {
+  width: 100%;
+  border: 1.5px solid var(--black);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 12px 14px;
+  font-size: 15px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+}
+.fi:focus { background: var(--white); }
+
+.fsel {
+  width: 100%;
+  border: 1.5px solid var(--black);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: 'DM Mono', monospace;
+  outline: none;
+}
+
+.primary-btn {
+  width: 100%;
+  background: var(--black);
+  color: var(--cream);
+  border: none;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 15px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+}
+.primary-btn:active { opacity: 0.7; }
+
+/* ── WISHLIST ── */
+.filter-scroll {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+}
+.filter-scroll::-webkit-scrollbar { display: none; }
+
+.fchip {
+  flex-shrink: 0;
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.fchip.active { background: var(--black); color: var(--cream); }
+
+.progress-strip {
+  background: var(--lightgray);
+  border-radius: 4px;
+  height: 4px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+.progress-inner {
+  height: 100%;
+  background: var(--red);
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+.progress-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--gray);
+  margin-bottom: 16px;
+}
+
+.wish-card {
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.wish-card.done { opacity: 0.4; }
+
+.wish-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--black);
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.wish-card.done .wish-checkbox {
+  background: var(--black);
+}
+.wish-card.done .wish-checkbox::after {
+  content: '✓';
+  color: var(--cream);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wish-info { flex: 1; }
+.wish-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+.wish-barrio {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--red);
+  margin-bottom: 5px;
+}
+.wish-note { font-size: 13px; color: #666; line-height: 1.5; }
+.wish-type-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gray);
+}
+
+/* ── TOOLS ── */
+.tool-card {
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.tool-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tool-icon { font-size: 20px; }
+
+/* CURRENCY */
+.currency-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.currency-input {
+  flex: 1;
+  border: 1.5px solid var(--black);
+  border-radius: 10px;
+  background: var(--bg);
+  padding: 14px 16px;
+  font-size: 22px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  width: 100%;
+}
+.currency-input:focus { background: var(--white); }
+
+.currency-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--gray);
+  margin-bottom: 6px;
+}
+
+.currency-results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.result-box {
+  background: var(--pink);
+  border: 1.5px solid var(--black);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+.result-box.cream { background: var(--cream); }
+
+.result-currency {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gray);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.result-amount {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--black);
+}
+
+.result-flag { font-size: 20px; margin-bottom: 4px; }
+
+.rate-note {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gray);
+  text-align: center;
+  margin-top: 12px;
+}
+
+.loading-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--gray);
+  text-align: center;
+  padding: 10px 0;
+}
+
+/* TIP CARDS */
+.tip-list { display: flex; flex-direction: column; gap: 10px; }
+
+.tip-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--cream);
+  border: 1.5px solid var(--black);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.tip-emoji { font-size: 22px; flex-shrink: 0; }
+
+.tip-text { flex: 1; }
+.tip-title { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+.tip-desc { font-size: 13px; color: #555; line-height: 1.5; }
+
+/* PHRASE CARDS */
+.phrase-grid { display: flex; flex-direction: column; gap: 8px; }
+
+.phrase-row {
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.phrase-row:active { background: var(--pink); }
+
+.phrase-zh { font-size: 14px; font-weight: 500; }
+.phrase-es { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--red); }
+.phrase-copy { font-size: 16px; }
+
+.copied-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--black);
+  color: var(--cream);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 999;
+  letter-spacing: 0.05em;
+}
+.copied-toast.show { opacity: 1; }
+
+/* ── MAP ── */
+.map-section { margin-bottom: 20px; }
+.map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.map-toggle-btn {
+  background: none; border: 1.5px solid var(--black); border-radius: 20px;
+  padding: 5px 14px; font-family: 'DM Mono', monospace; font-size: 10px;
+  letter-spacing: 0.05em; cursor: pointer; transition: all 0.15s; color: var(--black);
+}
+.map-toggle-btn.open { background: var(--black); color: var(--cream); }
+.map-wrapper {
+  display: none; border: 1.5px solid var(--black); border-radius: 14px;
+  overflow: hidden; background: #f0ebe8;
+}
+.map-wrapper.open { display: block; }
+#wishMapIframe {
+  width: 100%;
+  height: 240px;
+  border: none;
+  display: block;
+}
+.map-pins-scroll {
+  display: flex; gap: 8px; overflow-x: auto; padding: 10px 12px;
+  border-top: 1px solid var(--black); scrollbar-width: none; background: var(--white);
+}
+.map-pins-scroll::-webkit-scrollbar { display: none; }
+.map-pin-chip {
+  flex-shrink: 0; display: flex; align-items: center; gap: 5px;
+  background: var(--pink); border: 1px solid var(--black); border-radius: 20px;
+  padding: 4px 10px; font-family: 'DM Mono', monospace; font-size: 10px;
+  cursor: pointer; white-space: nowrap;
+}
+.map-pin-chip.done { background: var(--lightgray); opacity: 0.5; text-decoration: line-through; }
+.map-pin-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+.map-pin-chip.done .map-pin-dot { background: var(--gray); }
+
+/* OLD leaflet stubs kept for reference */
+.pin-undone {
+
+/* custom leaflet markers */
+.pin-undone {
+  background: var(--red);
+  border: 2px solid var(--black);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  width: 20px; height: 20px;
+}
+.pin-done {
+  background: var(--ice);
+  border: 2px solid var(--black);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  width: 20px; height: 20px;
+  opacity: 0.5;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 10px !important;
+  border: 1.5px solid var(--black) !important;
+  box-shadow: 2px 2px 0 var(--black) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  padding: 0 !important;
+}
+.leaflet-popup-content {
+  margin: 10px 14px !important;
+  font-size: 13px !important;
+}
+.popup-name { font-weight: 600; margin-bottom: 2px; }
+.popup-barrio { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--red); }
+
+.map-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+  padding: 0 2px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gray);
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--black);
+  flex-shrink: 0;
+}
+.legend-dot.undone { background: var(--red); }
+.legend-dot.done   { background: var(--ice); opacity: 0.6; }
+
+/* WISH ADD */
+.add-wish-btn {
+  width: 100%;
+  background: none;
+  border: 1.5px dashed var(--black);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--gray);
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.add-wish-form {
+  display: none;
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
+  gap: 10px;
+  flex-direction: column;
+}
+.add-wish-form.open { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="app-header-top">
+    <div class="app-title">
+      <span>Mayo 2026</span>
+      Buenos Aires
+    </div>
+    <div class="days-left-pill" id="daysLeftPill">計算中…</div>
+  </div>
+
+  <!-- FLIGHT CARD -->
+  <div id="flightInfo">
+  <div class="flight-card">
+    <div class="flight-port">
+      <div class="flight-code">JFK</div>
+      <div class="flight-city">New York</div>
+      <div class="flight-time">11:20 PM</div>
+    </div>
+    <div class="flight-mid">
+      <div class="flight-arrow">✈</div>
+      <div class="flight-num">AA 953</div>
+      <div class="flight-seat">11J · 12J</div>
+    </div>
+    <div class="flight-port">
+      <div class="flight-code">EZE</div>
+      <div class="flight-city">Buenos Aires</div>
+      <div class="flight-time">11:05 AM+1</div>
+    </div>
+  </div>
+  <button class="flight-toggle" onclick="toggleFlight()">回程班機 ↓</button>
+  <div class="flight-return" id="flightReturn">
+    <div class="flight-port">
+      <div class="flight-code">EZE</div>
+      <div class="flight-city">Buenos Aires</div>
+      <div class="flight-time">9:05 PM</div>
+    </div>
+    <div class="flight-mid">
+      <div class="flight-arrow">✈</div>
+      <div class="flight-num">AA 954</div>
+      <div class="flight-seat">14J · 15J</div>
+    </div>
+    <div class="flight-port">
+      <div class="flight-code">JFK</div>
+      <div class="flight-city">New York</div>
+      <div class="flight-time">7:00 AM+1</div>
+    </div>
+  </div>
+</div><!-- /flightInfo -->
+
+<!-- PAGES -->
+<div id="page-itinerary" class="page active">
+  <p class="section-title">行程</p>
+  <div class="day-scroller" id="dayScroller"></div>
+  <div id="dayPanels"></div>
+</div>
+
+<div id="page-wishlist" class="page">
+  <p class="section-title">清單</p>
+
+  <!-- MAP always open -->
+  <div class="map-section">
+    <div class="map-wrapper open" id="mapWrapper">
+      <iframe id="wishMapIframe" src="" loading="lazy"></iframe>
+      <div class="map-pins-scroll" id="mapPinsScroll"></div>
+    </div>
+  </div>
+
+  <div class="filter-scroll">
+    <button class="fchip active" onclick="filterWish('all',this)">全部</button>
+    <button class="fchip" onclick="filterWish('restaurant',this)">🍽 餐廳</button>
+    <button class="fchip" onclick="filterWish('cafe',this)">☕ 咖啡</button>
+    <button class="fchip" onclick="filterWish('culture',this)">🏛 文化</button>
+    <button class="fchip" onclick="filterWish('shop',this)">🛍 購物</button>
+  </div>
+  <div class="progress-strip"><div class="progress-inner" id="pBar"></div></div>
+  <div class="progress-text" id="pText"></div>
+  <div id="wishList"></div>
+  <button class="add-wish-btn" onclick="toggleForm('addWishForm')">＋ 新增地點</button>
+  <div class="add-wish-form" id="addWishForm">
+    <input class="fi" id="wName" placeholder="地點名稱">
+    <input class="fi" id="wBarrio" placeholder="Barrio / 地區">
+    <select class="fsel" id="wType">
+      <option value="restaurant">🍽 餐廳</option>
+      <option value="cafe">☕ 咖啡</option>
+      <option value="culture">🏛 文化</option>
+      <option value="shop">🛍 購物</option>
+    </select>
+    <input class="fi" id="wNote" placeholder="備註（可選）">
+    <button class="primary-btn" onclick="addWish()">加入清單</button>
+  </div>
+</div>
+
+<div id="page-tools" class="page">
+  <p class="section-title">小工具</p>
+
+  <!-- CURRENCY -->
+  <div class="tool-card">
+    <div class="tool-title"><span class="tool-icon">💱</span> 匯率換算</div>
+    <div class="currency-label">輸入披索金額 (ARS)</div>
+    <input class="currency-input" id="arsInput" type="number" inputmode="numeric" placeholder="0" oninput="convertCurrency()">
+    <div class="currency-results">
+      <div class="result-box">
+        <div class="result-flag">🇺🇸</div>
+        <div class="result-currency">USD 美金</div>
+        <div class="result-amount" id="usdResult">—</div>
+      </div>
+      <div class="result-box cream">
+        <div class="result-flag">🇹🇼</div>
+        <div class="result-currency">TWD 台幣</div>
+        <div class="result-amount" id="twdResult">—</div>
+      </div>
+    </div>
+    <div class="rate-note" id="rateNote">載入匯率中…</div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="tool-card">
+    <div class="tool-title"><span class="tool-icon">💡</span> 旅行須知</div>
+    <div class="tip-list">
+      <div class="tip-row">
+        <div class="tip-emoji">💵</div>
+        <div class="tip-text">
+          <div class="tip-title">換匯用「Blue Dollar」</div>
+          <div class="tip-desc">阿根廷有官方匯率和「blue rate」之分，Palermo 外幣兌換所（Casas de Cambio）通常比官方好很多，記得多比幾家。</div>
+        </div>
+      </div>
+      <div class="tip-row">
+        <div class="tip-emoji">📶</div>
+        <div class="tip-text">
+          <div class="tip-title">SIM 卡 / Wi-Fi</div>
+          <div class="tip-desc">Claro 或 Personal 是主要電信商，機場到市區後再買比較方便。或開國際漫遊。</div>
+        </div>
+      </div>
+      <div class="tip-row">
+        <div class="tip-emoji">🚕</div>
+        <div class="tip-text">
+          <div class="tip-title">交通用 Cabify / Uber</div>
+          <div class="tip-desc">比街頭招手的計程車安全，用 app 叫車。Tienda León 巴士是機場到市區的標準選擇。</div>
+        </div>
+      </div>
+      <div class="tip-row">
+        <div class="tip-emoji">🍽</div>
+        <div class="tip-text">
+          <div class="tip-title">餐廳小費</div>
+          <div class="tip-desc">一般給 10–15%，高檔餐廳給 15–20%。用披索現金給比較好。</div>
+        </div>
+      </div>
+      <div class="tip-row">
+        <div class="tip-emoji">🕗</div>
+        <div class="tip-text">
+          <div class="tip-title">當地時間節奏</div>
+          <div class="tip-desc">晚餐通常 9–10PM 才開始，店家中午可能休息。別太早去餐廳。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHRASES -->
+  <div class="tool-card">
+    <div class="tool-title"><span class="tool-icon">🗣</span> 常用西語</div>
+    <div class="phrase-grid" id="phraseGrid"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('itinerary',this)">
+    <span class="nav-icon">📅</span>
+    <span class="nav-label">行程</span>
+  </button>
+  <button class="nav-item" onclick="showPage('wishlist',this)">
+    <span class="nav-icon">📍</span>
+    <span class="nav-label">清單</span>
+  </button>
+  <button class="nav-item" onclick="showPage('tools',this)">
+    <span class="nav-icon">🔧</span>
+    <span class="nav-label">工具</span>
+  </button>
+</nav>
+
+<div class="copied-toast" id="copiedToast">已複製！</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQzvPNMEUJBRXPvTCo_B9w31n9d2nGTkw&callback=initGoogleMap&loading=async" async defer></script>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DAYS = [
+  {id:1,date:'5/13',wd:'三',label:'落地',barrio:'EZE → Palermo',events:[
+    {time:'11:05',title:'EZE 落地',desc:'入境、領行李、兌換披索',tags:['transit']},
+    {time:'13:00',title:'Tienda León 巴士',desc:'機場到市區約45分鐘，到 Madero 或 Palermo',tags:['transit']},
+    {time:'15:00',title:'入住 Fierro Hotel',desc:'Thames 1825, Palermo Hollywood',tags:['leisure']},
+    {time:'19:00',title:'附近散步覓食',desc:'Palermo Soho，試試 medialunas 牛角包',tags:['food']},
+  ]},
+  {id:2,date:'5/14',wd:'四',label:'Palermo + 演唱會',barrio:'Palermo → Movistar Arena',events:[
+    {time:'09:30',title:'早午餐',desc:'附近咖啡館',tags:['food']},
+    {time:'11:00',title:'MALBA 美術館',desc:'拉丁美洲藝術博物館，常設展 + 臨展',tags:['culture']},
+    {time:'14:00',title:'Palermo Soho 逛街',desc:'設計師小店、古著，6點前結束',tags:['leisure']},
+    {time:'18:00',title:'前往 Movistar Arena',desc:'CA7RIEL & Paco Amoroso，建議提早到場',tags:['leisure']},
+    {time:'21:00',title:'🎵 CA7RIEL & Paco Amoroso',desc:'Movistar Arena · Section 116 Row A Seat 24 + Floor',tags:['leisure']},
+  ]},
+  {id:3,date:'5/15',wd:'五',label:'San Telmo + La Boca',barrio:'San Telmo + La Boca',events:[
+    {time:'10:00',title:'San Telmo 骨董街',desc:'骨董店、古著、特色小店',tags:['culture','leisure']},
+    {time:'13:00',title:'午餐',desc:'San Telmo 市場內小吃',tags:['food']},
+    {time:'15:00',title:'La Boca / Caminito',desc:'春光乍洩拍攝地！彩色街道，不要走偏僻路',tags:['culture']},
+    {time:'19:00',title:'返回 Palermo',desc:'',tags:['transit']},
+  ]},
+  {id:4,date:'5/16',wd:'六',label:'Recoleta + Centro',barrio:'Recoleta + Centro',events:[
+    {time:'10:00',title:'Recoleta 公墓',desc:'Evita 安葬於此，建築極美',tags:['culture']},
+    {time:'12:30',title:'午餐',desc:'Recoleta 附近',tags:['food']},
+    {time:'14:30',title:'Centro 歷史區',desc:'Plaza de Mayo、Casa Rosada、Teatro Colón',tags:['culture']},
+    {time:'17:00',title:'El Ateneo 書店',desc:'舊劇院改的書店，世界最美之一',tags:['culture']},
+  ]},
+  {id:5,date:'5/17',wd:'日',label:'San Telmo 市集',barrio:'San Telmo + Colegiales',events:[
+    {time:'10:00',title:'Feria de San Telmo',desc:'週日骨董市集，只有週日才有！骨董、手工藝、街頭表演',tags:['culture','leisure']},
+    {time:'13:00',title:'午餐',desc:'市集附近隨意吃',tags:['food']},
+    {time:'15:00',title:'Mercado de las Pulgas',desc:'Colegiales 跳蚤市場，找舊貨',tags:['shop']},
+    {time:'19:00',title:'晚餐',desc:'Palermo 附近',tags:['food']},
+  ]},
+  {id:6,date:'5/18',wd:'一',label:'Tigre 一日遊',barrio:'Tigre Delta',events:[
+    {time:'09:00',title:'搭火車去 Tigre',desc:'從 Retiro 站搭 Ramal Tigre 線，約1小時',tags:['transit']},
+    {time:'10:30',title:'Tigre 三角洲',desc:'河道、木造房子、很解壓，可以搭船遊河',tags:['leisure']},
+    {time:'13:00',title:'午餐',desc:'Tigre 當地餐廳',tags:['food']},
+    {time:'15:00',title:'搭船遊三角洲',desc:'各種大小船班可選，風景很美',tags:['leisure']},
+    {time:'18:00',title:'返回市區',desc:'搭火車回 Retiro',tags:['transit']},
+  ]},
+  {id:7,date:'5/19',wd:'二',label:'輕鬆日',barrio:'Palermo',events:[
+    {time:'10:00',title:'睡晚一點',desc:'自由起床，喝咖啡',tags:['leisure']},
+    {time:'12:00',title:'回頭逛',desc:'之前沒買夠的地方，最後採購',tags:['shop']},
+    {time:'20:00',title:'最後一頓好餐',desc:'訂一間之前沒去到的好餐廳好好收尾',tags:['food']},
+  ]},
+  {id:8,date:'5/20',wd:'三',label:'離境日',barrio:'Palermo → EZE',events:[
+    {time:'上午',title:'退房 & 行李',desc:'Check out，寄放行李或帶著逛',tags:['leisure']},
+    {time:'下午',title:'最後散步',desc:'Palermo 附近隨意走走',tags:['leisure']},
+    {time:'18:00',title:'前往 EZE',desc:'AA 954 起飛 21:05，建議 3hr 前到機場',tags:['transit']},
+    {time:'21:05',title:'起飛 ✈',desc:'EZE → JFK，抵達 5/22 早上 7:00',tags:['transit']},
+  ]},
+];
+
+const DEFAULT_WISHES = [
+  {id:1,name:'Don Julio',barrio:'Palermo',type:'restaurant',note:'評價極高的 parrilla，需提早訂位',done:false,lat:-34.5876,lng:-58.4326},
+  {id:2,name:'El Federal',barrio:'San Telmo',type:'restaurant',note:'老式氛圍，傳統料理',done:false,lat:-34.6218,lng:-58.3712},
+  {id:3,name:'Café Tortoni',barrio:'Centro',type:'cafe',note:'1858年開業，最老的咖啡館',done:false,lat:-34.6087,lng:-58.3741},
+  {id:4,name:'LAB Tostadores',barrio:'Palermo',type:'cafe',note:'精品咖啡，本地人愛去',done:false,lat:-34.5881,lng:-58.4289},
+  {id:5,name:'MALBA',barrio:'Palermo',type:'culture',note:'拉丁美洲現代藝術博物館',done:false,lat:-34.5756,lng:-58.4159},
+  {id:6,name:'Recoleta 公墓',barrio:'Recoleta',type:'culture',note:'Evita 安葬於此',done:false,lat:-34.5877,lng:-58.3934},
+  {id:7,name:'El Ateneo Grand Splendid',barrio:'Recoleta',type:'culture',note:'舊劇院改的書店',done:false,lat:-34.5957,lng:-58.3930},
+  {id:8,name:'Feria de San Telmo',barrio:'San Telmo',type:'culture',note:'週日骨董市集 — 5/17！',done:false,lat:-34.6209,lng:-58.3730},
+  {id:9,name:'Mercado de las Pulgas',barrio:'Colegiales',type:'shop',note:'跳蚤市場，找舊貨',done:false,lat:-34.5720,lng:-58.4401},
+  {id:10,name:'Rapsodia',barrio:'Palermo',type:'shop',note:'阿根廷本地時裝品牌',done:false,lat:-34.5869,lng:-58.4314},
+  {id:11,name:'Movistar Arena',barrio:'Villa Crespo',type:'culture',note:'🎵 CA7RIEL & Paco Amoroso · 5/14 · 21:00 · Sec 116 Row A + Floor',done:false,lat:-34.5983,lng:-58.4380},
+  {id:12,name:'Caminito 春光乍洩',barrio:'La Boca',type:'culture',note:'王家衛春光乍洩拍攝地，Caminito 街道 + Riachuelo 河邊綠色欄杆',done:false,lat:-34.6345,lng:-58.3631},
+];
+
+const PHRASES = [
+  {zh:'謝謝', es:'Gracias'},
+  {zh:'多少錢？', es:'¿Cuánto cuesta?'},
+  {zh:'在哪裡？', es:'¿Dónde está?'},
+  {zh:'我要這個', es:'Quiero esto'},
+  {zh:'菜單', es:'La carta'},
+  {zh:'帳單', es:'La cuenta'},
+  {zh:'太貴了', es:'Es muy caro'},
+  {zh:'有英語嗎？', es:'¿Habla inglés?'},
+  {zh:'幫我叫計程車', es:'Llame un taxi'},
+  {zh:'我迷路了', es:'Estoy perdido/a'},
+  {zh:'好吃！', es:'¡Está riquísimo!'},
+  {zh:'廁所在哪？', es:'¿Dónde está el baño?'},
+];
+
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+const SB_URL = 'https://lqhmcxmnlkrawmfsactc.supabase.co';
+const SB_KEY = 'sb_publishable_YPJMYd1pQi70bP-whcI0uA_i-hZOLyj';
+
+async function sbFetch(path, options = {}) {
+  const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer || 'return=representation',
+      ...options.headers
+    },
+    ...options
+  });
+  if (!res.ok) { const e = await res.text(); console.error('SB error:', e); return null; }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+// seed default wishes if table is empty
+async function seedWishesIfEmpty() {
+  const existing = await sbFetch('wishes?select=id&limit=1');
+  if (existing && existing.length > 0) return;
+  await sbFetch('wishes', {
+    method: 'POST',
+    prefer: 'return=minimal',
+    body: JSON.stringify(DEFAULT_WISHES)
+  });
+}
+
+async function loadWishes() {
+  const data = await sbFetch('wishes?order=id');
+  if (data) wishes = data;
+}
+
+async function loadCustomEvents() {
+  const data = await sbFetch('custom_events?order=id');
+  if (data) {
+    customEvents = {};
+    data.forEach(e => {
+      if (!customEvents[e.day_id]) customEvents[e.day_id] = [];
+      customEvents[e.day_id].push({
+        time: e.event_time,
+        title: e.title,
+        desc: e.event_desc,
+        tags: [e.tag]
+      });
+    });
+  }
+}
+
+// ── STATE ──────────────────────────────────────────────────────────────────────
+let activeDay = 1;
+let wishFilter = 'all';
+let wishes = [];
+let customEvents = {};
+let mapOpen = false;
+let leafletMap = null;
+let mapMarkers = {};
+let eventEdits = {}; // key: "dayId_eventIndex" → {title, event_desc}
+
+// Exchange rates (fallback)
+let rates = { ARS_USD: 0.00085, ARS_TWD: 0.027 };
+let ratesLoaded = false;
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+window.onload = async function() {
+  updateDaysLeft();
+  buildPhrases();
+  fetchRates();
+
+  // show loading state
+  document.getElementById('wishList').innerHTML = '<div style="text-align:center;padding:30px;font-family:\'DM Mono\',monospace;font-size:12px;color:#888;">載入中…</div>';
+
+  await seedWishesIfEmpty();
+  await Promise.all([loadWishes(), loadCustomEvents(), loadEventEdits()]);
+
+  buildItinerary();
+  buildWishlist();
+  mapOpen = true;
+  renderMapIframe();
+};
+
+async function loadEventEdits() {
+  const data = await sbFetch('event_edits?select=*');
+  if (data) {
+    eventEdits = {};
+    data.forEach(e => {
+      const key = `${e.day_id}_${e.event_index}`;
+      eventEdits[key] = e;
+      // apply time edit to in-memory DAYS
+      const day = DAYS.find(d => d.id === e.day_id);
+      if (day && day.events[e.event_index] && e.event_time) {
+        day.events[e.event_index].time = e.event_time;
+      }
+    });
+  }
+}
+
+// ── EVENT EDIT INTERACTIONS ───────────────────────────────────────────────────
+function startEditEvent(key, card) {
+  if (card.classList.contains('editing')) return;
+  // close any other open edit
+  document.querySelectorAll('.event-card.editing').forEach(c => c.classList.remove('editing'));
+  card.classList.add('editing');
+}
+
+function cancelEditEvent(e, key) {
+  e.stopPropagation();
+  const card = document.getElementById(`ec_${key}`);
+  if (card) card.classList.remove('editing');
+}
+
+async function saveEditEvent(e, key, dayId, eventIndex) {
+  e.stopPropagation();
+  const time = document.getElementById(`ei_time_${key}`).value.trim();
+  const title = document.getElementById(`ei_title_${key}`).value.trim();
+  const desc = document.getElementById(`ei_desc_${key}`).value.trim();
+  if (!title) return;
+
+  eventEdits[key] = { day_id: dayId, event_index: eventIndex, event_time: time, title, event_desc: desc };
+
+  // also patch the in-memory DAYS so time shows immediately
+  const day = DAYS.find(d => d.id === dayId);
+  if (day && day.events[eventIndex]) day.events[eventIndex].time = time;
+
+  const card = document.getElementById(`ec_${key}`);
+  if (card) card.classList.remove('editing');
+  buildItinerary();
+  switchDay(dayId);
+
+  const existing = await sbFetch(`event_edits?day_id=eq.${dayId}&event_index=eq.${eventIndex}`);
+  if (existing && existing.length > 0) {
+    await sbFetch(`event_edits?day_id=eq.${dayId}&event_index=eq.${eventIndex}`, {
+      method: 'PATCH',
+      prefer: 'return=minimal',
+      body: JSON.stringify({ title, event_desc: desc, event_time: time })
+    });
+  } else {
+    await sbFetch('event_edits', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: JSON.stringify({ day_id: dayId, event_index: eventIndex, title, event_desc: desc, event_time: time })
+    });
+  }
+}
+
+// ── DAYS LEFT ──────────────────────────────────────────────────────────────────
+function updateDaysLeft() {
+  const depart = new Date('2026-05-12T23:20:00');
+  const now = new Date();
+  const diff = Math.ceil((depart - now) / (1000*60*60*24));
+  const pill = document.getElementById('daysLeftPill');
+  if (diff > 0) pill.textContent = `出發倒數 ${diff} 天`;
+  else if (diff === 0) pill.textContent = '今天出發！';
+  else pill.textContent = '旅途中 ✈';
+}
+
+// ── FLIGHT ─────────────────────────────────────────────────────────────────────
+function toggleFlight() {
+  document.getElementById('flightReturn').classList.toggle('open');
+}
+
+// ── ITINERARY ──────────────────────────────────────────────────────────────────
+function buildItinerary() {
+  const scroller = document.getElementById('dayScroller');
+  const panels = document.getElementById('dayPanels');
+  scroller.innerHTML = ''; panels.innerHTML = '';
+
+  DAYS.forEach(d => {
+    const extra = customEvents[d.id] || [];
+    const allE = [...d.events, ...extra];
+
+    const chip = document.createElement('button');
+    chip.className = 'day-chip' + (d.id===activeDay?' active':'');
+    chip.onclick = () => switchDay(d.id);
+    chip.innerHTML = `<div class="dc-date">${d.date}</div><div class="dc-label">${d.label}</div>`;
+    scroller.appendChild(chip);
+
+    const panel = document.createElement('div');
+    panel.id = `dp${d.id}`;
+    panel.className = 'day-panel' + (d.id===activeDay?' active':'');
+    panel.innerHTML = `
+      <div class="day-barrio">${d.wd} · ${d.barrio}</div>
+      ${allE.map((e, i) => {
+        const editKey = `${d.id}_${i}`;
+        const edited = eventEdits[editKey];
+        const title = edited ? edited.title : e.title;
+        const desc = edited ? edited.event_desc : e.desc;
+        const isCustom = i >= d.events.length;
+        return `
+        <div class="event-card" id="ec_${editKey}" onclick="startEditEvent('${editKey}', this)">
+          <div class="event-time">${e.time}</div>
+          <div class="event-body" style="width:100%">
+            <div class="event-display">
+              <div class="event-title">${title}</div>
+              ${desc?`<div class="event-desc">${desc}</div>`:''}
+              <div class="event-tags">${(e.tags||[]).map(t=>`<span class="etag etag-${t}">${tl(t)}</span>`).join('')}</div>
+            </div>
+            <div class="event-edit-fields">
+              <input class="event-edit-input" id="ei_time_${editKey}" value="${e.time.replace(/"/g,'&quot;')}" placeholder="時間">
+              <input class="event-edit-input" id="ei_title_${editKey}" value="${title.replace(/"/g,'&quot;')}" placeholder="標題">
+              <input class="event-edit-input" id="ei_desc_${editKey}" value="${(desc||'').replace(/"/g,'&quot;')}" placeholder="備註">
+              <div class="event-edit-actions">
+                <button class="event-save-btn" onclick="saveEditEvent(event,'${editKey}',${d.id},${i})">儲存</button>
+                <button class="event-cancel-btn" onclick="cancelEditEvent(event,'${editKey}')">取消</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+      <button class="add-event-btn" onclick="toggleForm('af${d.id}')">＋ 新增行程</button>
+      <div class="add-event-form" id="af${d.id}">
+        <input class="fi" id="et${d.id}" placeholder="時間（如 14:00）">
+        <input class="fi" id="en${d.id}" placeholder="活動名稱">
+        <input class="fi" id="ed${d.id}" placeholder="備註（可選）">
+        <select class="fsel" id="eg${d.id}">
+          <option value="food">🍽 餐飲</option>
+          <option value="culture">🏛 文化</option>
+          <option value="transit">✈ 交通</option>
+          <option value="leisure">🌿 休閒</option>
+        </select>
+        <button class="primary-btn" onclick="addEvent(${d.id})">加入行程</button>
+      </div>
+    `;
+    panels.appendChild(panel);
+  });
+}
+
+const tl = t => ({food:'餐飲',culture:'文化',transit:'交通',leisure:'休閒'}[t]||t);
+
+function switchDay(id) {
+  activeDay = id;
+  document.querySelectorAll('.day-chip').forEach((el,i) => el.classList.toggle('active', DAYS[i].id===id));
+  document.querySelectorAll('.day-panel').forEach(el => el.classList.toggle('active', el.id===`dp${id}`));
+}
+
+async function addEvent(dayId) {
+  const t = document.getElementById(`et${dayId}`).value.trim();
+  const n = document.getElementById(`en${dayId}`).value.trim();
+  const d = document.getElementById(`ed${dayId}`).value.trim();
+  const g = document.getElementById(`eg${dayId}`).value;
+  if (!n) return;
+
+  if (!customEvents[dayId]) customEvents[dayId] = [];
+  customEvents[dayId].push({time:t||'—',title:n,desc:d,tags:[g]});
+  buildItinerary();
+  switchDay(dayId);
+  document.getElementById(`af${dayId}`).classList.add('open');
+
+  await sbFetch('custom_events', {
+    method: 'POST',
+    prefer: 'return=minimal',
+    body: JSON.stringify({ day_id: dayId, event_time: t||'—', title: n, event_desc: d, tag: g })
+  });
+}
+
+// ── MAP ───────────────────────────────────────────────────────────────────────
+function toggleMap() {
+  mapOpen = !mapOpen;
+  const wrapper = document.getElementById('mapWrapper');
+  const btn = document.getElementById('mapToggleBtn');
+  wrapper.classList.toggle('open', mapOpen);
+  btn.classList.toggle('open', mapOpen);
+  btn.textContent = mapOpen ? '✕ 隱藏地圖' : '🗺 顯示地圖';
+  if (mapOpen) renderMapIframe();
+}
+
+function renderMapIframe() {
+  const scroll = document.getElementById('mapPinsScroll');
+  if (scroll) {
+    scroll.innerHTML = wishes.map(w => `
+      <div class="map-pin-chip ${w.done?'done':''}" onclick="focusMarker(${w.id})">
+        <div class="map-pin-dot"></div>${w.name}
+      </div>
+    `).join('');
+  }
+  if (window.googleMapReady) {
+    refreshGoogleMarkers();
+  }
+}
+
+function openOSM(lat, lng) {
+  window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+}
+
+function renderMapMarkers() { renderMapIframe(); }
+
+// ── GOOGLE MAPS ───────────────────────────────────────────────────────────────
+let gmap = null;
+let gmarkers = {};
+
+window.initGoogleMap = function() {
+  window.googleMapReady = true;
+  const mapEl = document.getElementById('wishMapIframe');
+  if (!mapEl) return;
+
+  // Replace iframe with div for Google Maps
+  const mapDiv = document.createElement('div');
+  mapDiv.id = 'googleMapDiv';
+  mapDiv.style.cssText = 'width:100%;height:240px;display:block;';
+  mapEl.parentNode.replaceChild(mapDiv, mapEl);
+
+  gmap = new google.maps.Map(mapDiv, {
+    center: { lat: -34.603722, lng: -58.381592 },
+    zoom: 13,
+    disableDefaultUI: true,
+    zoomControl: true,
+    styles: [
+      { featureType: 'all', elementType: 'geometry', stylers: [{ saturation: -30 }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#d4e4ed' }] },
+      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+      { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#f5eded' }] },
+      { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#f8f2f2' }] },
+      { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#e8d5d5' }] },
+      { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+      { featureType: 'transit', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    ]
+  });
+
+  refreshGoogleMarkers();
+};
+
+function refreshGoogleMarkers() {
+  if (!gmap) return;
+  Object.values(gmarkers).forEach(m => m.setMap(null));
+  gmarkers = {};
+
+  wishes.forEach(w => {
+    if (!w.lat || !w.lng) return;
+    const marker = new google.maps.Marker({
+      position: { lat: w.lat, lng: w.lng },
+      map: gmap,
+      title: w.name,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: w.done ? '#B1CCC8' : '#A10808',
+        fillOpacity: w.done ? 0.5 : 1,
+        strokeColor: '#111111',
+        strokeWeight: 1.5,
+      }
+    });
+
+    const infoWindow = new google.maps.InfoWindow({
+      content: `<div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;">${w.name}</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:#A10808;">${w.barrio}</div>`
+    });
+    marker.addListener('click', () => infoWindow.open(gmap, marker));
+    gmarkers[w.id] = marker;
+  });
+}
+
+function focusMarker(id) {
+  const w = wishes.find(x => x.id === id);
+  if (!w || !w.lat || !gmap) return;
+  gmap.panTo({ lat: w.lat, lng: w.lng });
+  gmap.setZoom(16);
+  if (gmarkers[id]) google.maps.event.trigger(gmarkers[id], 'click');
+}
+
+// ── WISHLIST ──────────────────────────────────────────────────────────────────
+function buildWishlist() {
+  const filtered = wishFilter==='all' ? wishes : wishes.filter(w=>w.type===wishFilter);
+  document.getElementById('wishList').innerHTML = filtered.map(w=>`
+    <div class="wish-card ${w.done?'done':''}" onclick="toggleWish(${w.id})">
+      <div class="wish-checkbox"></div>
+      <div class="wish-info">
+        <div class="wish-name">${w.name}</div>
+        <div class="wish-barrio">${w.barrio}</div>
+        ${w.note?`<div class="wish-note">${w.note}</div>`:''}
+      </div>
+    </div>
+  `).join('');
+  const done = wishes.filter(w=>w.done).length;
+  const total = wishes.length;
+  document.getElementById('pBar').style.width = (total ? done/total*100 : 0) + '%';
+  document.getElementById('pText').textContent = `已勾選 ${done} / ${total}`;
+}
+
+async function toggleWish(id) {
+  const w = wishes.find(x=>x.id===id);
+  if (!w) return;
+  w.done = !w.done;
+  buildWishlist();
+  renderMapIframe();
+  await sbFetch(`wishes?id=eq.${id}`, {
+    method: 'PATCH',
+    prefer: 'return=minimal',
+    body: JSON.stringify({ done: w.done })
+  });
+}
+
+function filterWish(f, btn) {
+  wishFilter = f;
+  document.querySelectorAll('.fchip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildWishlist();
+}
+
+async function addWish() {
+  const name = document.getElementById('wName').value.trim();
+  if (!name) return;
+  const newWish = {
+    id: Date.now(),
+    name,
+    barrio: document.getElementById('wBarrio').value.trim(),
+    type: document.getElementById('wType').value,
+    note: document.getElementById('wNote').value.trim(),
+    done: false,
+    lat: null,
+    lng: null
+  };
+  wishes.push(newWish);
+  ['wName','wBarrio','wNote'].forEach(id => document.getElementById(id).value='');
+  buildWishlist();
+  renderMapIframe();
+  await sbFetch('wishes', {
+    method: 'POST',
+    prefer: 'return=minimal',
+    body: JSON.stringify(newWish)
+  });
+}
+
+// ── CURRENCY ──────────────────────────────────────────────────────────────────
+async function fetchRates() {
+  try {
+    const r = await fetch('https://api.exchangerate-api.com/v4/latest/ARS');
+    const data = await r.json();
+    rates.ARS_USD = data.rates.USD;
+    rates.ARS_TWD = data.rates.TWD;
+    ratesLoaded = true;
+    document.getElementById('rateNote').textContent =
+      `1 ARS = ${(rates.ARS_USD).toFixed(5)} USD · ${(rates.ARS_TWD).toFixed(4)} TWD · 即時匯率`;
+  } catch(e) {
+    document.getElementById('rateNote').textContent = '使用參考匯率（離線）';
+  }
+}
+
+function convertCurrency() {
+  const ars = parseFloat(document.getElementById('arsInput').value) || 0;
+  const usd = (ars * rates.ARS_USD).toFixed(2);
+  const twd = Math.round(ars * rates.ARS_TWD);
+  document.getElementById('usdResult').textContent = ars > 0 ? `$${usd}` : '—';
+  document.getElementById('twdResult').textContent = ars > 0 ? `$${twd}` : '—';
+}
+
+// ── PHRASES ───────────────────────────────────────────────────────────────────
+function buildPhrases() {
+  document.getElementById('phraseGrid').innerHTML = PHRASES.map(p=>`
+    <div class="phrase-row" onclick="copyPhrase('${p.es}')">
+      <div>
+        <div class="phrase-zh">${p.zh}</div>
+        <div class="phrase-es">${p.es}</div>
+      </div>
+      <div class="phrase-copy">📋</div>
+    </div>
+  `).join('');
+}
+
+function copyPhrase(text) {
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const toast = document.getElementById('copiedToast');
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 1500);
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  // 機票資訊只在行程頁顯示
+  document.getElementById('flightInfo').style.display = id === 'itinerary' ? 'block' : 'none';
+}
+
+function toggleForm(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+</script>
+</body>
+</html>
